@@ -1,5 +1,5 @@
 from flask_restplus import Api, Resource, fields
-from flask import abort, jsonify, make_response, request, url_for
+from flask import abort, json, make_response, request, url_for
 from sqlalchemy import func
 from movie import Movie
 import random
@@ -8,7 +8,7 @@ import random
 def init_api_routes(app, session):
     if app:
         api = Api(app)
-        movie_api = api.namespace('movies', description='Operations on movies')
+        movie_api = api.namespace('', description='Operations on movies')
 
         movie_model = api.model('Movie', {
                                 'title': fields.String,
@@ -86,3 +86,24 @@ def init_api_routes(app, session):
                                 session.commit()
                                 return mv.serialize(), 200
                         return "No movies of genre: "+genre, 404
+
+        @movie_api.route('/statistics')
+        class GetMovieStatistics(Resource):
+                @movie_api.response(200, 'Success')
+                def get(self):
+                        '''Gets the statistics'''
+                        tot = session.query(func.sum(Movie.recommended_count))\
+                                     .scalar()
+                        count = session.query(func.count(Movie.movie_id))\
+                                       .scalar()
+                        if tot is None:
+                                tot = 0
+                        if count is None:
+                                count = 0
+
+                        data = {
+                                        'total_recommendations': tot,
+                                        'total_movies': count
+                                }
+                        response = json.dumps(data)
+                        return data, 200
