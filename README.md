@@ -1,5 +1,7 @@
 # movie-flask
 
+Application Live at: https://movie-flask-api.herokuapp.com/
+[Reload after 10 seconds if the link isn't working]
 Movies added as of now are of genre: fantasy
 
 POST /recommendation
